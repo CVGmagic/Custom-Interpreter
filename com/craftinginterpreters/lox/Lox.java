@@ -58,25 +58,45 @@ public class Lox {
         // Stop if there was a syntax error.
         if (hadError) return;
 
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+
+        // Stop if there was a resolution error.
+        if (hadError) return;
+
         interpreter.interpret(statements);
     }
 
     static void error(int line, String message) {
-        report(line, "", message);
+        report_error(line, "", message);
     }
 
-    private static void report(int line, String where, String message) {
+    private static void report_error(int line, String where, String message) {
         // Reports an error
         System.err.println(
             "[line " + line + "] Error" + where + ": " + message);
         hadError = true;
     }
+
+    private static void report_warning(int line, String where, String message) {
+        // Reports a warning
+        System.err.println(
+            "[line " + line + "] Warning" + where + ": " + message);
+    }
     
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
-            report(token.line, " at end", message);
+            report_error(token.line, " at end", message);
         } else {
-            report(token.line, " at '" + token.lexeme + "'", message);
+            report_error(token.line, " at '" + token.lexeme + "'", message);
+        }
+    }
+
+    static void warning(Token token, String message) {
+        if (token.type == TokenType.EOF) {
+            report_warning(token.line, " at end", message);
+        } else {
+            report_warning(token.line, " at '" + token.lexeme + "'", message);
         }
     }
 
